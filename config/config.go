@@ -26,21 +26,30 @@ type Config struct {
 }
 
 func init() {
-	LoadConfig()
+	c, _ := LoadConfig()
+	SetConfig(c)
 }
 
-func LoadConfig() {
+func AvailableLanguages() []string {
+	return []string{"eng", "fra", "deu", "spa"}
+}
+
+func LoadConfig() (Config, error) {
+	c := Config{}
 	b, err := os.ReadFile(configFile)
 	if err != nil {
-		return
+		return c, err
 	}
 
-	c := Config{}
 	err = yaml.Unmarshal(b, &c)
 	if err != nil {
-		return
+		return c, err
 	}
 
+	return c, nil
+}
+
+func SetConfig(c Config) {
 	BaseDir = c.BaseDir
 	NationalIdeaPath = filepath.Join(BaseDir, "common", "ideas", "00_country_ideas.txt")
 	LocalisationDir = filepath.Join(BaseDir, "localisation")
@@ -61,4 +70,17 @@ func WriteConfig(c Config) error {
 
 	_, err = f.Write(b)
 	return err
+}
+
+func VerifyGameFiles() bool {
+	paths := []string{BaseDir, LocalisationDir, NationalIdeaPath}
+	for _, path := range paths {
+		f, err := os.Open(path)
+		if err != nil {
+			return false
+		}
+		f.Close()
+	}
+
+	return true
 }
