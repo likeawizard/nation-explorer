@@ -27,22 +27,7 @@ func init() {
 		}
 		fp := filepath.Join(config.LocalisationDir, file.Name())
 
-		f, err := os.Open(fp)
-
-		if err != nil {
-			fmt.Println(err)
-			continue
-		}
-		s := bufio.NewScanner(f)
-
-		for s.Scan() {
-			m := tokenMatch.FindStringSubmatch(s.Text())
-			if m == nil {
-				continue
-			}
-			tokens[m[tokenMatch.SubexpIndex("key")]] = m[tokenMatch.SubexpIndex("value")]
-		}
-		f.Close()
+		ReadLangFile(fp)
 	}
 
 }
@@ -53,4 +38,26 @@ func Get(key string) string {
 	}
 
 	return key
+}
+
+func ReadLangFile(filePath string) {
+	f, err := os.Open(filePath)
+	if err != nil {
+		return
+	}
+	defer f.Close()
+	s := bufio.NewScanner(f)
+
+	for s.Scan() {
+		m := tokenMatch.FindStringSubmatch(s.Text())
+		if m == nil {
+			continue
+		}
+		tokens[m[tokenMatch.SubexpIndex("key")]] = m[tokenMatch.SubexpIndex("value")]
+	}
+	f.Close()
+}
+
+func snakeCaseToPretty(s string) string {
+	return strings.Title(strings.ReplaceAll(s, "_", " "))
 }
