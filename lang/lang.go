@@ -15,6 +15,19 @@ var tokens map[string]string = make(map[string]string)
 var tokenMatch = regexp.MustCompile(`(?P<key>[^\s]+):([0-9]*)?\s"(?P<value>.*)"`)
 
 func init() {
+	ReadLangFiles()
+
+}
+
+func Get(key string) string {
+	if v, ok := tokens[key]; ok {
+		return v
+	}
+
+	return key
+}
+
+func ReadLangFiles() {
 	files, err := os.ReadDir(config.LocalisationDir)
 
 	if err != nil {
@@ -30,14 +43,8 @@ func init() {
 		ReadLangFile(fp)
 	}
 
-}
-
-func Get(key string) string {
-	if v, ok := tokens[key]; ok {
-		return v
-	}
-
-	return key
+	// TODO proper initialization of internal resources
+	ReadLangFile("data/modifiers.yml")
 }
 
 func ReadLangFile(filePath string) {
