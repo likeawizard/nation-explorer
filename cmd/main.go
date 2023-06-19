@@ -20,13 +20,13 @@ func main() {
 	myWindow.SetMaster()
 
 	script.LoadNationalIdeas()
-	lang.ReadLangFile("data/modifiers.yml")
+	lang.ReadLangFiles()
 
 	myWindow.SetContent(gui.ListNationalIdeas())
 	myWindow.ShowAndRun()
 }
 
-func makeMenu(a fyne.App, w fyne.Window) *fyne.MainMenu {
+func makeMenu(a fyne.App, parent fyne.Window) *fyne.MainMenu {
 
 	settings := func() {
 		w := a.NewWindow("Settings")

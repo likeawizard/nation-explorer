@@ -2,6 +2,8 @@ package gui
 
 import (
 	"likeawizard/nation-explorer/config"
+	"likeawizard/nation-explorer/lang"
+	"likeawizard/nation-explorer/script"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
@@ -56,6 +58,8 @@ func Settings(w fyne.Window) fyne.CanvasObject {
 		filesOkBinding.Set(ok)
 		if ok {
 			config.WriteConfig(c)
+			script.LoadNationalIdeas()
+			lang.ReadLangFiles()
 			w.Close()
 		}
 		// revert to old config
