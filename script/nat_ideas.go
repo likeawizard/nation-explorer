@@ -2,10 +2,14 @@ package script
 
 import (
 	"fmt"
+	"likeawizard/nation-explorer/config"
 	"log"
+	"os"
 
 	lex "github.com/timtadh/lexmachine"
 )
+
+var natIdeaList map[string]NatIdeas
 
 type modType int
 
@@ -16,6 +20,7 @@ const (
 )
 
 type NatIdeas struct {
+	Name       string
 	Traditions ModGroup
 	Ambition   ModGroup
 	Ideas      []ModGroup
@@ -28,19 +33,22 @@ type Modifier struct {
 }
 
 type ModGroup struct {
+	Name string
 	Mods []Modifier
 }
 
-type ideaTree struct {
-	parent *ideaTree
+type scriptTree struct {
+	parent *scriptTree
 	vals   map[string]interface{}
 }
 
-func ParseIdeas(bytes []byte) map[string]NatIdeas {
+func LoadNationalIdeas() {
+	natIdeaList = make(map[string]NatIdeas)
+	bytes, _ := os.ReadFile(config.NationalIdeaPath)
 	isKey := true
 	var key string
 
-	curr := &ideaTree{
+	curr := &scriptTree{
 		parent: nil,
 		vals:   make(map[string]interface{}, 0),
 	}
@@ -49,7 +57,7 @@ func ParseIdeas(bytes []byte) map[string]NatIdeas {
 	s, err := Lexer.Scanner(bytes)
 	if err != nil {
 		fmt.Println(err)
-		return nil
+		return
 	}
 
 	for tok, err, eof := s.Next(); !eof; tok, err, eof = s.Next() {
@@ -70,7 +78,7 @@ func ParseIdeas(bytes []byte) map[string]NatIdeas {
 
 		case "{":
 			isKey = true
-			child := &ideaTree{
+			child := &scriptTree{
 				parent: curr,
 				vals:   make(map[string]interface{}, 0), //TODO
 			}
@@ -89,34 +97,35 @@ func ParseIdeas(bytes []byte) map[string]NatIdeas {
 
 	}
 
-	return formatIdeas(root)
+	formatIdeas(root)
 }
 
-func formatIdeas(root *ideaTree) map[string]NatIdeas {
-	allIdeas := make(map[string]NatIdeas, 0)
-
+func formatIdeas(root *scriptTree) {
 	for country, ideaGroup := range root.vals {
-		natIdeas := NatIdeas{}
-		for key, val := range ideaGroup.(*ideaTree).vals {
+		natIdeas := NatIdeas{Name: country}
+		for key, val := range ideaGroup.(*scriptTree).vals {
 			switch key {
 			case "free", "trigger":
 				continue
 			case "start":
-				natIdeas.Traditions = unpackModifierGroup(val.(*ideaTree))
+				natIdeas.Traditions = unpackModifierGroup("Traditions", val.(*scriptTree))
 			case "bonus":
-				natIdeas.Ambition = unpackModifierGroup(val.(*ideaTree))
+				natIdeas.Ambition = unpackModifierGroup("Ambition", val.(*scriptTree))
 			default:
-				natIdeas.Ideas = append(natIdeas.Ideas, unpackModifierGroup(val.(*ideaTree)))
+				natIdeas.Ideas = append(natIdeas.Ideas, unpackModifierGroup(key, val.(*scriptTree)))
 			}
 		}
-		allIdeas[country] = natIdeas
+		natIdeaList[country] = natIdeas
 	}
-
-	return allIdeas
 }
 
-func unpackModifierGroup(modGroup *ideaTree) ModGroup {
+func GetNatIdeas() map[string]NatIdeas {
+	return natIdeaList
+}
+
+func unpackModifierGroup(name string, modGroup *scriptTree) ModGroup {
 	mg := ModGroup{
+		Name: name,
 		Mods: make([]Modifier, 0),
 	}
 	for key, val := range modGroup.vals {
