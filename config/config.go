@@ -52,6 +52,7 @@ func LoadConfig() (Config, error) {
 func SetConfig(c Config) {
 	BaseDir = c.BaseDir
 	NationalIdeaPath = filepath.Join(BaseDir, "common", "ideas", "00_country_ideas.txt")
+	// NationalIdeaPath = filepath.Join(BaseDir, "common", "ideas", "zz_group_ideas.txt")
 	LocalisationDir = filepath.Join(BaseDir, "localisation")
 	LanguageSuffix = langPrefix[c.Lang]
 }
