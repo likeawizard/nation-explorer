@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/timtadh/lexmachine v0.2.3
-	golang.org/x/text v0.14.0
+	golang.org/x/text v0.16.0
 )
 
 require (
@@ -28,7 +28,7 @@ require (
 	github.com/stretchr/testify v1.8.0 // indirect
 	github.com/tevino/abool v1.2.0 // indirect
 	github.com/yuin/goldmark v1.4.13 // indirect
-	golang.org/x/image v0.10.0 // indirect
+	golang.org/x/image v0.18.0 // indirect
 	golang.org/x/mobile v0.0.0-20211207041440-4e6c2922fdee // indirect
 	golang.org/x/net v0.23.0 // indirect
 	golang.org/x/sys v0.18.0 // indirect
